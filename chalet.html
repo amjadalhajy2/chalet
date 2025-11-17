@@ -1,19 +1,29 @@
-<div>We Receive Your Request, We Will Contact You Soon To Complete Reservation Process.</div>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send Alertzy Notification</title>
+</head>
+<body>
+  <h2>Send Alertzy Notification</h2>
+  <button id="sendBtn">Send Alert</button>
 
-<script>
-  // Function to send Alertzy notification
-  function sendAlertzyNotification() {
-    fetch("https://alertzy.app/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: "accountKey=rjg82jburvpb3o1&title=Page Opened&message=You Receive New Reservation Request"
-    })
-    .then(response => console.log("Notification sent"))
-    .catch(error => console.error("Error sending notification:", error));
-  }
+  <script>
+    const accountKey = rjg82jburvpb3o1; // Replace with your key
 
-  // Trigger when the page loads
-  window.onload = sendAlertzyNotification;
-</script>
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      fetch("https://alertzy.app/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          accountKey: accountKey,
+          title: "Hello from Glide!",
+          message: "This notification was sent using GitHub Pages + JS"
+        })
+      })
+      .then(response => response.json())
+      .then(data => alert("Notification sent!"))
+      .catch(err => alert("Error: " + err));
+    });
+  </script>
+</body>
+</html>
