@@ -1,64 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Alertzy Notification</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-    }
-    button {
-      padding: 15px 25px;
-      font-size: 18px;
-      background: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:active {
-      background: #0056d6;
-    }
-  </style>
-</head>
-<body>
-
-<h2>Tap to Confirm</h2>
-<p>Your visit will send a notification.</p>
-
-<button onclick="sendNotification()">SEND NOTIFICATION</button>
+<div>We Receive Your Request, We Will Contact You Soon To Complete Reservation Process.</div>
 
 <script>
-function sendNotification() {
-  const accountKey = rjg82jburvpb3o1; // ⭐ Replace this
+  // Function to send Alertzy notification
+  function sendAlertzyNotification() {
+    fetch("https://alertzy.app/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "accountKey=rjg82jburvpb3o1&title=Page Opened&message=You Receive New Reservation Request"
+    })
+    .then(response => console.log("Notification sent"))
+    .catch(error => console.error("Error sending notification:", error));
+  }
 
-  fetch("https://alertzy.app/send", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body:
-      "accountKey=" + accountKey +
-      "&title=Page Opened" +
-      "&message=Someone visited the link."
-  })
-  .then(() => {
-    alert("Notification Sent!");
-  })
-  .catch((error) => {
-    alert("Error sending notification.");
-    console.error(error);
-  });
-}
-
-// Optional: auto-click after 1 second (works on iPhone inside iframe)
-setTimeout(() => {
-  document.querySelector("button").click();
-}, 1000);
+  // Trigger when the page loads
+  window.onload = sendAlertzyNotification;
 </script>
-
-</body>
-</html>
-
