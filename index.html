@@ -3,72 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة حجز الاستراحات</title>
-    
+    <title>حجز الاستراحات</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
-        :root { --gold: #c5a059; --dark: #1a2a3a; }
-        body { font-family: 'Cairo', sans-serif; background-color: #f8f9fa; }
-        .header-bg { background: var(--dark); color: white; padding: 40px 0; text-align: center; border-bottom: 5px solid var(--gold); }
-        .calendar-card { background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: -30px; padding: 20px; }
-        .fc-event { cursor: pointer; border: none !important; padding: 3px; font-weight: bold; }
-        .status-available { background-color: #28a745 !important; } /* أخضر */
-        .status-booked { background-color: #dc3545 !important; opacity: 0.8; } /* أحمر */
-        .modal-header { background: var(--dark); color: white; border-bottom: 3px solid var(--gold); }
-        .btn-primary { background: var(--gold); border: none; }
-        .btn-primary:hover { background: #a38445; }
+        :root { --main: #1a2a3a; --gold: #c5a059; }
+        body { background: #f4f7f6; font-family: sans-serif; }
+        .hero { background: var(--main); color: white; padding: 30px 0; border-bottom: 4px solid var(--gold); text-align: center; }
+        .calendar-container { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-top: -20px; }
+        .fc-event { cursor: pointer; border: none !important; font-size: 0.8em; padding: 2px; }
+        .status-available { background: #28a745 !important; } /* أخضر */
+        .status-booked { background: #dc3545 !important; }    /* أحمر */
+        .modal-header { background: var(--main); color: white; }
     </style>
 </head>
 <body>
 
-<div class="header-bg">
-    <h1>استراحاتنا المتميزة</h1>
-    <p>اضغط على الاستراحة المتوفرة (باللون الأخضر) لحجز موعدك</p>
+<div class="hero">
+    <h3>بوابة حجز الاستراحات</h3>
+    <p class="small">اختر التاريخ والاستراحة المطلوبة</p>
 </div>
 
 <div class="container mb-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-11 calendar-card">
-            <div id="calendar"></div>
-        </div>
+    <div class="calendar-container">
+        <div id="calendar"></div>
     </div>
 </div>
 
-<div class="modal fade" id="bookingModal" tabindex="-1">
+<div class="modal fade" id="bookModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">تأكيد طلب الحجز</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="bookingForm">
+            <div class="modal-header"><h6 class="modal-title">طلب حجز جديد</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <form id="bookForm">
                 <div class="modal-body">
-                    <div id="infoBox" class="alert alert-warning text-center fw-bold"></div>
-                    <input type="hidden" id="resortName">
-                    <input type="hidden" id="bookingDate">
-                    
-                    <div class="mb-3">
-                        <label class="form-label">الاسم الكامل</label>
-                        <input type="text" id="custName" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">رقم الهاتف</label>
-                        <input type="tel" id="custPhone" class="form-control" placeholder="968XXXXXXXX" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">نوع الإقامة</label>
-                        <select id="stayType" class="form-select">
-                            <option value="بدون مبيت">يوم كامل (بدون مبيت)</option>
-                            <option value="مع مبيت">يوم كامل (مع مبيت)</option>
-                        </select>
-                    </div>
+                    <div id="targetInfo" class="alert alert-secondary py-2 small fw-bold"></div>
+                    <input type="hidden" id="resort"><input type="hidden" id="date">
+                    <input type="text" id="name" class="form-control mb-3" placeholder="اسم العميل" required>
+                    <input type="tel" id="phone" class="form-control mb-3" placeholder="رقم الهاتف" required>
+                    <select id="stay" class="form-select mb-2"><option value="بدون مبيت">بدون مبيت</option><option value="مع مبيت">مع مبيت</option></select>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" id="submitBtn" class="btn btn-primary w-100">إرسال الطلب</button>
-                </div>
+                <div class="modal-footer"><button type="submit" id="subBtn" class="btn btn-dark w-100">تأكيد الطلب</button></div>
             </form>
         </div>
     </div>
@@ -78,84 +52,63 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <script>
-    // --- إعدادات هامة ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwxqs9EFu5HFQeKpfs1zOlI5APycRUyBn2Y_BcBtcy9pdpxgw1XzLMFJdY7tZ2fnn010Q/exec'; 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyfYgfKoIxtCfeCpDUIKTwJLcyM3qJ0MXvgyBQUvasqEO0wdFuHEj70sp1ffTUSp8kiGQ/exec';
     const RESORTS = ["استراحة النسيم", "استراحة الجبل", "استراحة الشاطئ"];
-    // ------------------
 
     document.addEventListener('DOMContentLoaded', async function() {
-        const calendarEl = document.getElementById('calendar');
-        const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
-        let bookedData = [];
+        const modal = new bootstrap.Modal(document.getElementById('bookModal'));
+        let booked = [];
 
-        // 1. جلب البيانات من شيت
+        // جلب البيانات بسرعة
         try {
-            const response = await fetch(scriptURL);
-            bookedData = await response.json();
-        } catch (e) { console.log("جاري البدء لأول مرة..."); }
+            const res = await fetch(scriptURL);
+            booked = await res.json();
+        } catch(e) {}
 
-        // 2. تشغيل التقويم
-        const calendar = new FullCalendar.Calendar(calendarEl, {
+        const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'dayGridMonth',
             locale: 'ar',
             direction: 'rtl',
-            events: function(fetchInfo, successCallback) {
-                let events = [];
-                let start = new Date(fetchInfo.start);
-                let end = new Date(fetchInfo.end);
-
-                while(start < end) {
-                    let dStr = start.toISOString().split('T')[0];
-                    RESORTS.forEach(res => {
-                        // التحقق من الحجز (العمود G هو رقم 6 في المصفوفة)
-                        let isBooked = bookedData.some(row => row[4].includes(dStr) && row[3] === res && row[6] === "Confirmed");
-                        events.push({
-                            title: res + (isBooked ? " (محجوز)" : " (متاح)"),
-                            start: dStr,
-                            className: isBooked ? 'status-booked' : 'status-available',
-                            extendedProps: { resort: res, date: dStr, booked: isBooked }
-                        });
+            height: 'auto',
+            events: function(info, success) {
+                let evs = [];
+                let start = new Date(info.start);
+                while(start < info.end) {
+                    let d = start.toISOString().split('T')[0];
+                    RESORTS.forEach(r => {
+                        let isB = booked.some(row => row[4] === d && row[3] === r && row[6] === "Confirmed");
+                        evs.push({ title: r + (isB ? " (محجوز)" : " (متاح)"), start: d, className: isB ? 'status-booked' : 'status-available', extendedProps: {r, d, isB} });
                     });
                     start.setDate(start.getDate() + 1);
                 }
-                successCallback(events);
+                success(evs);
             },
             eventClick: function(info) {
-                if(info.event.extendedProps.booked) return alert("هذه الاستراحة محجوزة");
-                document.getElementById('resortName').value = info.event.extendedProps.resort;
-                document.getElementById('bookingDate').value = info.event.extendedProps.date;
-                document.getElementById('infoBox').innerText = info.event.extendedProps.resort + " | " + info.event.extendedProps.date;
-                bookingModal.show();
+                if(info.event.extendedProps.isB) return alert("محجوز مسبقاً");
+                document.getElementById('resort').value = info.event.extendedProps.r;
+                document.getElementById('date').value = info.event.extendedProps.d;
+                document.getElementById('targetInfo').innerText = info.event.extendedProps.r + " | " + info.event.extendedProps.d;
+                modal.show();
             }
         });
         calendar.render();
 
-        // 3. إرسال الحجز
-        document.getElementById('bookingForm').onsubmit = function(e) {
+        document.getElementById('bookForm').onsubmit = async (e) => {
             e.preventDefault();
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('submitBtn').innerText = "جاري الإرسال...";
+            const btn = document.getElementById('subBtn');
+            btn.disabled = true; btn.innerText = "جاري الحجز...";
+            
+            const data = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                resort: document.getElementById('resort').value,
+                date: document.getElementById('date').value,
+                stayType: document.getElementById('stay').value
+            };
 
-   const data = {
-    name: document.getElementById('custName').value,
-    phone: document.getElementById('custPhone').value,
-    resort: document.getElementById('resortName').value,
-    date: document.getElementById('bookingDate').value,
-    stayType: document.getElementById('stayType').value
-};
-
-fetch(scriptURL, {
-    method: 'POST',
-    mode: 'no-cors', // لضمان العمل مع تطبيقات جوجل
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-})
-.then(() => {
-    alert("تم إرسال طلبك بنجاح!");
-    location.reload();
-})
-.catch(err => alert("حدث خطأ في الاتصال"));
-            });
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            alert("تم إرسال طلبك بنجاح!");
+            location.reload();
         };
     });
 </script>
