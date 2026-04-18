@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>لوحة الإدارة</title>
+</head>
+
+<body>
+
+<h2>إدارة الحجوزات</h2>
+
+<table border="1" id="table"></table>
+
+<script>
+const URL = "ضع رابط Apps Script هنا";
+
+fetch(URL)
+.then(res => res.json())
+.then(data => {
+  let table = document.getElementById("table");
+
+  data.forEach(row => {
+    let tr = document.createElement("tr");
+
+    Object.values(row).forEach(val => {
+      let td = document.createElement("td");
+      td.innerText = val;
+      tr.appendChild(td);
+    });
+
+    table.appendChild(tr);
+  });
+});
+</script>
+
+</body>
+</html>
