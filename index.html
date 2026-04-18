@@ -136,22 +136,25 @@
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('submitBtn').innerText = "جاري الإرسال...";
 
-            const data = {
-                name: document.getElementById('custName').value,
-                phone: document.getElementById('custPhone').value,
-                resort: document.getElementById('resortName').value,
-                date: document.getElementById('bookingDate').value,
-                stayType: document.getElementById('stayType').value
-            };
+   const data = {
+    name: document.getElementById('custName').value,
+    phone: document.getElementById('custPhone').value,
+    resort: document.getElementById('resortName').value,
+    date: document.getElementById('bookingDate').value,
+    stayType: document.getElementById('stayType').value
+};
 
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
-            .then(() => {
-                alert("تم إرسال طلبك! سيتم التواصل معك قريباً.");
-                location.reload();
-            })
-            .catch(() => {
-                alert("تم الإرسال! (تجاهل رسالة الخطأ إذا ظهرت البيانات في الشيت)");
-                location.reload();
+fetch(scriptURL, {
+    method: 'POST',
+    mode: 'no-cors', // لضمان العمل مع تطبيقات جوجل
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+})
+.then(() => {
+    alert("تم إرسال طلبك بنجاح!");
+    location.reload();
+})
+.catch(err => alert("حدث خطأ في الاتصال"));
             });
         };
     });
