@@ -52,7 +52,7 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyfYgfKoIxtCfeCpDUIKTwJLcyM3qJ0MXvgyBQUvasqEO0wdFuHEj70sp1ffTUSp8kiGQ/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw-QAVzyjORIdX9qV1YTTxKFWc8QMY2Pj6JuN8MHBH3cCqSJgD1bQBE1M4QZUhX9M36mA/exec';
     const RESORTS = ["استراحة النسيم", "استراحة الجبل", "استراحة الشاطئ"];
 
     document.addEventListener('DOMContentLoaded', async function() {
@@ -71,17 +71,32 @@
             direction: 'rtl',
             height: 'auto',
             events: function(info, success) {
-                let evs = [];
-                let start = new Date(info.start);
-                while(start < info.end) {
-                    let d = start.toISOString().split('T')[0];
-                    RESORTS.forEach(r => {
-                        let isB = booked.some(row => row[4] === d && row[3] === r && row[6] === "Confirmed");
-                        evs.push({ title: r + (isB ? " (محجوز)" : " (متاح)"), start: d, className: isB ? 'status-booked' : 'status-available', extendedProps: {r, d, isB} });
-                    });
-                    start.setDate(start.getDate() + 1);
+    let evs = [];
+    let start = new Date(info.start);
+    while(start < info.end) {
+        let d = start.toISOString().split('T')[0];
+        RESORTS.forEach(r => {
+            // هنا الفحص: يبحث عن التاريخ في العمود 4، الاسم في العمود 3، والحالة Confirmed في العمود 6
+            let isB = booked.some(row => {
+                let rowDate = "";
+                if(row[4]) {
+                    // تحويل تاريخ جوجل شيت إلى صيغة YYYY-MM-DD للمقارنة
+                    rowDate = new Date(row[4]).toISOString().split('T')[0];
                 }
-                success(evs);
+                return rowDate === d && row[3] === r && row[6] === "Confirmed";
+            });
+
+            evs.push({ 
+                title: r + (isB ? " (محجوز)" : " (متاح)"), 
+                start: d, 
+                className: isB ? 'status-booked' : 'status-available', 
+                extendedProps: {r, d, isB} 
+            });
+        });
+        start.setDate(start.getDate() + 1);
+    }
+    success(evs);
+}
             },
             eventClick: function(info) {
                 if(info.event.extendedProps.isB) return alert("محجوز مسبقاً");
